@@ -31,7 +31,15 @@ public class UserCandleWatchListController {
 		ucwlservice.AutoGenerateCandleWatchList(uswlDTO);
 	}
 	
-//	@PostMapping("/watchlist/candlewatchlist")
-//	
-//	}
+	@PostMapping("/watchlist/candlewatchlist")
+	public ResponseEntity<List<UserCandleWatchListDTO>> getcandlesdata(@RequestBody UserCandleWatchListDTO input){
+		List<UserCandleWatchListDTO> candlewatchlist=ucwlservice.WatchListByUserAndTicker(input);
+		return ResponseEntity.ok(candlewatchlist);
+	}
+	
+	@PostMapping("/watchlist/candlewatchlist/update")
+	public ResponseEntity<List<UserCandleWatchListDTO>> updatecandledata(@RequestBody List<UserCandleWatchListDTO> input){
+		List<UserCandleWatchListDTO> updatedcandlewatchlist=ucwlservice.UpdateUserWatchList(input);
+		return ResponseEntity.ok(updatedcandlewatchlist);
+	}
 }
