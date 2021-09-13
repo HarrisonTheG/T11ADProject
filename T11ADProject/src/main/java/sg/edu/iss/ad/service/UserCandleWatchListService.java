@@ -1,8 +1,10 @@
 package sg.edu.iss.ad.service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,8 +37,8 @@ public class UserCandleWatchListService {
 	}
 	
 	//Delete WatchList
-	public void deleteWatchListBystockTicker(String stockTicker){
-		List<UserCandleWatchList> ucwlList = ucwlrepo.findUserCandleWatchListByStockTicker(stockTicker);
+	public void deleteWatchListBystockTicker(UserStockWatchListDTO candletodelete){
+		List<UserCandleWatchList> ucwlList = ucwlrepo.findUserCandleWatchListByStockTickerandUsername(candletodelete.getStockticker(),candletodelete.getUsername());
 		for (UserCandleWatchList ucwl:ucwlList){
 			ucwlrepo.deletewatchlistbyId(ucwl.getId());
 		}
@@ -61,7 +63,9 @@ public class UserCandleWatchListService {
 	public List<UserCandleWatchListDTO> WatchListByUserAndTicker(UserCandleWatchListDTO userinput){
 		List<UserCandleWatchListDTO> tofrontend=new ArrayList<UserCandleWatchListDTO>();
 		List<UserCandleWatchList> allcandles=ucwlrepo.findUserCandleWatchListByStockTickerandUsername(userinput.getStockticker(), userinput.getUsername());
-		for(UserCandleWatchList candle:allcandles) {
+		List<UserCandleWatchList> sortedallcandles=allcandles.stream().sorted(Comparator.comparing(UserCandleWatchList::getId)).collect(Collectors.toList());
+		for(UserCandleWatchList candle:sortedallcandles) {
+			System.out.println(candle.getId());
 			UserCandleWatchListDTO temp=new UserCandleWatchListDTO();
 			temp.setUsername(candle.getUserStockWatchList().getUser().getUsername());
 			temp.setStockticker(candle.getUserStockWatchList().getStock().getStockTicker());
@@ -80,8 +84,8 @@ public class UserCandleWatchListService {
 	public List<UserCandleWatchListDTO> UpdateUserWatchList(List<UserCandleWatchListDTO> userinput){
 		List<UserCandleWatchListDTO> tofrontend=new ArrayList<UserCandleWatchListDTO>();
 		List<UserCandleWatchList> allcandles=ucwlrepo.findUserCandleWatchListByStockTickerandUsername(userinput.get(0).getStockticker(), userinput.get(0).getUsername());
-		for (int i=0;i<allcandles.size();i++) {
-			UserCandleWatchList tosave=allcandles.get(i);
+		for (int i=0;i<allcandles.size();i++) {			
+			UserCandleWatchList tosave=ucwlrepo.findUserCandleWatchListByStockTickerandUsernameandCandlename(userinput.get(i).getStockticker(), userinput.get(i).getUsername(), userinput.get(i).getCandlename());			
 			tosave.setActive(userinput.get(i).getActive());
 			tosave.setDateTimeActive(Long.parseLong(userinput.get(i).getDatetime()));   
 			ucwlrepo.save(tosave);
